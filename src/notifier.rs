@@ -54,7 +54,7 @@ impl Notifier {
             lines.push(format!("IPv6 new: {}", ip));
         }
         let text = lines.join("\n");
-        println!("Change detected\n{}˜n", text);
+        println!("Change detected\n{}\n", text);
 
         let text = format!("IPs changed\n```\n{}\n```", text);
         let mut params = SendMessageParams::new(
