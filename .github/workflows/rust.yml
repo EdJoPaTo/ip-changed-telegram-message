@@ -19,22 +19,10 @@ jobs:
           - os: macOS-latest
             toolchain: stable
             clippyargs: -D clippy::pedantic -D warnings
-          - os: windows-latest
-            toolchain: stable
-            clippyargs: -D clippy::pedantic -D warnings
 
           - os: ubuntu-latest
             toolchain: nightly
             clippyargs: -W clippy::pedantic
-          # - os: ubuntu-latest
-          #   toolchain: 1.41.1 # Debian 10 Buster
-          #   clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
-          - os: ubuntu-latest
-            toolchain: 1.47.0 # Alpine 3.13
-            clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
-          - os: ubuntu-latest
-            toolchain: 1.48.0 # Debian 11 Bullseye
-            clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
     steps:
       - uses: actions/checkout@v2
 
@@ -74,15 +62,6 @@ jobs:
             triple: armv7-unknown-linux-gnueabihf
           - os: ubuntu-latest
             triple: aarch64-unknown-linux-gnu
-          - os: macOS-latest
-            triple: x86_64-apple-darwin
-          - os: macOS-latest
-            triple: aarch64-apple-darwin
-          - os: windows-latest
-            triple: x86_64-pc-windows-msvc
-          # https://github.com/briansmith/ring/issues/1167
-          # - os: windows-latest
-          #   triple: aarch64-pc-windows-msvc
 
     steps:
       - uses: actions/checkout@v2
@@ -122,12 +101,10 @@ jobs:
         if: runner.os != 'Windows'
         run: >
           tar --gzip -cvf ${{ env.ARTIFACT_NAME }}.tar.gz
-          completions LICENSE
           -C target/${{ matrix.triple }}/release ip-changed-telegram-message
       - name: Pack release (windows)
         if: runner.os == 'Windows'
         run: |
-          7z a ${{ env.ARTIFACT_NAME }}.zip completions LICENSE
           cd target/${{ matrix.triple }}/release
           7z a ../../../${{ env.ARTIFACT_NAME }}.zip ip-changed-telegram-message.exe
           cd -
