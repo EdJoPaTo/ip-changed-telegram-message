@@ -1,0 +1,20 @@
+[package]
+name = "ip-changed-telegram-message"
+description = "Send a telegram message when the public ip changes"
+version = "0.1.0"
+license = "MIT"
+repository = "https://github.com/EdJoPaTo/ip-changed-telegram-message"
+authors = ["EdJoPaTo <ip-changed-telegram-message-rust@edjopato.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+# See https://doc.rust-lang.org/rustc/codegen-options/index.html
+codegen-units = 1
+lto = true
+
+[dependencies]
+anyhow = "1"
+frankenstein = "0.3"
+ureq = "2"

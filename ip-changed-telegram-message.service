@@ -1,0 +1,17 @@
+[Unit]
+Description=Send a telegram message when the public ip changes
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+DynamicUser=true
+Restart=always
+RestartSec=20
+Environment="BOT_TOKEN="
+Environment="TARGET_CHAT="
+ExecStart=/usr/local/bin/ip-changed-telegram-message
+
+[Install]
+WantedBy=multi-user.target
