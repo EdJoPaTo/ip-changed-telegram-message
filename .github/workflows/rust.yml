@@ -16,9 +16,6 @@ jobs:
           - os: ubuntu-latest
             toolchain: stable
             clippyargs: -D clippy::pedantic -D warnings
-          - os: macOS-latest
-            toolchain: stable
-            clippyargs: -D clippy::pedantic -D warnings
 
           - os: ubuntu-latest
             toolchain: nightly
