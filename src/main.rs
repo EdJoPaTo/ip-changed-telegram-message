@@ -18,7 +18,7 @@ async fn main() {
     let notifier = notifier::Notifier::new(&bot_token, target_chat);
 
     let http = Http::new();
-    let mut current = IPs::get(&http).expect("failed to get current IPs");
+    let mut current = IPs::get(&http).await.expect("failed to get current IPs");
 
     notifier
         .notify_startup(&current)
@@ -28,7 +28,7 @@ async fn main() {
     loop {
         sleep(Duration::from_secs(20)).await;
 
-        match IPs::get(&http) {
+        match IPs::get(&http).await {
             Ok(now) => {
                 if now != current {
                     if let Err(err) = notifier.notify_change(&current, &now).await {

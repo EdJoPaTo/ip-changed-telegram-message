@@ -7,12 +7,14 @@ pub struct IPs {
 }
 
 impl IPs {
-    pub fn get(http: &Http) -> anyhow::Result<Self> {
+    pub async fn get(http: &Http) -> anyhow::Result<Self> {
         let v4 = http
             .get("https://ipv4.edjopato.de")
+            .await
             .map(|body| body.trim().to_string());
         let v6 = http
             .get("https://ipv6.edjopato.de")
+            .await
             .map(|body| body.trim().to_string());
 
         if v4.is_err() && v6.is_err() {

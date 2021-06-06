@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use ureq::{Agent, AgentBuilder};
+use reqwest::{Client, ClientBuilder};
 
 const USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -12,20 +12,29 @@ const USER_AGENT: &str = concat!(
 
 #[derive(Clone)]
 pub struct Http {
-    agent: Agent,
+    client: Client,
 }
 
 impl Http {
     pub fn new() -> Self {
-        let agent = AgentBuilder::new()
-            .timeout(Duration::from_secs(30))
-            .user_agent(USER_AGENT)
-            .build();
-        Self { agent }
+        Self {
+            client: ClientBuilder::new()
+                .timeout(Duration::from_secs(5))
+                .user_agent(USER_AGENT)
+                .build()
+                .expect("failed to create reqwest client"),
+        }
     }
 
-    pub fn get(&self, url: &str) -> anyhow::Result<String> {
-        let body = self.agent.get(url).call()?.into_string()?;
+    pub async fn get(&self, url: &str) -> anyhow::Result<String> {
+        let body = self
+            .client
+            .get(url)
+            .send()
+            .await?
+            .error_for_status()?
+            .text()
+            .await?;
         Ok(body)
     }
 }
