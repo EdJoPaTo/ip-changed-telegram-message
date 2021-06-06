@@ -53,12 +53,13 @@ jobs:
         include:
           - os: ubuntu-latest
             triple: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            triple: arm-unknown-linux-gnueabihf
-          - os: ubuntu-latest
-            triple: armv7-unknown-linux-gnueabihf
-          - os: ubuntu-latest
-            triple: aarch64-unknown-linux-gnu
+          # openssl-sys doesnt work with cross
+          # - os: ubuntu-latest
+          #   triple: arm-unknown-linux-gnueabihf
+          # - os: ubuntu-latest
+          #   triple: armv7-unknown-linux-gnueabihf
+          # - os: ubuntu-latest
+          #   triple: aarch64-unknown-linux-gnu
 
     steps:
       - uses: actions/checkout@v2
