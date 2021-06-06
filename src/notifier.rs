@@ -1,19 +1,26 @@
-use frankenstein::{Api, ChatIdEnum, SendMessageParams, TelegramApi};
+use teloxide::{
+    payloads::SendMessageSetters,
+    prelude::{Request, Requester},
+    types::ParseMode,
+    utils::html::code_block,
+    Bot,
+};
 
 use crate::ips::IPs;
 
 pub struct Notifier {
-    api: Api,
-    target_chat: String,
+    bot: Bot,
+    target_chat: i64,
 }
 
 impl Notifier {
-    pub fn new(bot_token: String, target_chat: String) -> Self {
-        let api = Api::new(bot_token);
-        Self { api, target_chat }
+    pub fn new(bot_token: &str, target_chat: i64) -> Self {
+        teloxide::enable_logging!();
+        let bot = Bot::new(bot_token);
+        Self { bot, target_chat }
     }
 
-    pub fn notify_startup(&self, ips: &IPs) -> anyhow::Result<()> {
+    pub async fn notify_startup(&self, ips: &IPs) -> anyhow::Result<()> {
         let mut lines = Vec::new();
         if let Some(ip) = &ips.v4 {
             lines.push(format!("IPv4: {}", ip));
@@ -24,22 +31,18 @@ impl Notifier {
         let text = lines.join("\n");
         println!("{}", text);
 
-        let text = format!("Bot startup done. IPs at startup:\n```\n{}\n```", text);
-        let mut params = SendMessageParams::new(
-            ChatIdEnum::StringVariant(self.target_chat.to_string()),
-            text,
-        );
-        params.set_disable_notification(Some(true));
-        params.set_disable_web_page_preview(Some(true));
-        params.set_parse_mode(Some("Markdown".into()));
-        if let Err(err) = self.api.send_message(&params) {
-            return Err(anyhow::anyhow!("send_message failed {:?}", err));
-        }
-
+        let text = format!("Bot startup done. IPs at startup:\n{}", code_block(&text));
+        self.bot
+            .send_message(self.target_chat, &text)
+            .disable_notification(true)
+            .disable_web_page_preview(true)
+            .parse_mode(ParseMode::Html)
+            .send()
+            .await?;
         Ok(())
     }
 
-    pub fn notify_change(&self, old: &IPs, new: &IPs) -> anyhow::Result<()> {
+    pub async fn notify_change(&self, old: &IPs, new: &IPs) -> anyhow::Result<()> {
         let mut lines = Vec::new();
         if let Some(ip) = &old.v4 {
             lines.push(format!("IPv4 old: {}", ip));
@@ -54,19 +57,15 @@ impl Notifier {
             lines.push(format!("IPv6 new: {}", ip));
         }
         let text = lines.join("\n");
-        println!("Change detected\n{}\n", text);
+        println!("Change detected\n{}", text);
 
-        let text = format!("IPs changed\n```\n{}\n```", text);
-        let mut params = SendMessageParams::new(
-            ChatIdEnum::StringVariant(self.target_chat.to_string()),
-            text,
-        );
-        params.set_disable_web_page_preview(Some(true));
-        params.set_parse_mode(Some("Markdown".into()));
-        if let Err(err) = self.api.send_message(&params) {
-            return Err(anyhow::anyhow!("send_message failed {:?}", err));
-        }
-
+        let text = format!("IPs changed\n{}", code_block(&text));
+        self.bot
+            .send_message(self.target_chat, &text)
+            .disable_web_page_preview(true)
+            .parse_mode(ParseMode::Html)
+            .send()
+            .await?;
         Ok(())
     }
 }
