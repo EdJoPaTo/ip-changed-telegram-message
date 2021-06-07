@@ -8,6 +8,8 @@ mod http;
 mod ips;
 mod notifier;
 
+const SLEEP_TIME: Duration = Duration::from_secs(20);
+
 #[tokio::main]
 async fn main() {
     let bot_token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set");
@@ -25,19 +27,33 @@ async fn main() {
         .await
         .expect("notify startup failed");
 
+    let mut failed_attempts = 0;
+
     loop {
-        sleep(Duration::from_secs(20)).await;
+        sleep(SLEEP_TIME).await;
 
         match IPs::get(&http).await {
             Ok(now) => {
-                if now != current {
-                    if let Err(err) = notifier.notify_change(&current, &now).await {
+                let ip_changed = now != current;
+                let network_was_down = failed_attempts > 0;
+                let network_down_duration = SLEEP_TIME * (failed_attempts + 1);
+
+                if ip_changed || network_was_down {
+                    if let Err(err) = notifier
+                        .notify_change(&current, &now, &network_down_duration)
+                        .await
+                    {
                         eprintln!("notify change failed {}", err);
                     }
                     current = now;
                 }
+
+                failed_attempts = 0;
             }
-            Err(err) => eprintln!("Temporary offline {}", err),
+            Err(err) => {
+                eprintln!("Temporary offline {}", err);
+                failed_attempts += 1;
+            }
         }
     }
 }

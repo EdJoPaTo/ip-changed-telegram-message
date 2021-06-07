@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use teloxide::{
     payloads::SendMessageSetters,
     prelude::{Request, Requester},
@@ -42,8 +44,17 @@ impl Notifier {
         Ok(())
     }
 
-    pub async fn notify_change(&self, old: &IPs, new: &IPs) -> anyhow::Result<()> {
+    pub async fn notify_change(
+        &self,
+        old: &IPs,
+        new: &IPs,
+        maximum_down_duration: &Duration,
+    ) -> anyhow::Result<()> {
         let mut lines = Vec::new();
+        lines.push(format!(
+            "Network was down for up to {} seconds.",
+            maximum_down_duration.as_secs()
+        ));
         if let Some(ip) = &old.v4 {
             lines.push(format!("IPv4 old: {}", ip));
         }
