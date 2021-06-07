@@ -55,22 +55,26 @@ impl Notifier {
             "Network was down for up to {} seconds.",
             maximum_down_duration.as_secs()
         ));
-        if let Some(ip) = &old.v4 {
-            lines.push(format!("IPv4 old: {}", ip));
+        if old.v4 != new.v4 {
+            if let Some(ip) = &old.v4 {
+                lines.push(format!("IPv4 old: {}", ip));
+            }
+            if let Some(ip) = &new.v4 {
+                lines.push(format!("IPv4 new: {}", ip));
+            }
         }
-        if let Some(ip) = &new.v4 {
-            lines.push(format!("IPv4 new: {}", ip));
-        }
-        if let Some(ip) = &old.v6 {
-            lines.push(format!("IPv6 old: {}", ip));
-        }
-        if let Some(ip) = &new.v6 {
-            lines.push(format!("IPv6 new: {}", ip));
+        if old.v6 != new.v6 {
+            if let Some(ip) = &old.v6 {
+                lines.push(format!("IPv6 old: {}", ip));
+            }
+            if let Some(ip) = &new.v6 {
+                lines.push(format!("IPv6 new: {}", ip));
+            }
         }
         let text = lines.join("\n");
-        println!("Change detected\n{}", text);
+        println!("{}", text);
 
-        let text = format!("IPs changed\n{}", code_block(&text));
+        let text = code_block(&text);
         self.bot
             .send_message(self.target_chat, &text)
             .disable_web_page_preview(true)
