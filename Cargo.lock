@@ -449,7 +449,7 @@ dependencies = [
 
 [[package]]
 name = "ip-changed-telegram-message"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "log",
