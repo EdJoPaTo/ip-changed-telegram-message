@@ -52,8 +52,9 @@ impl Notifier {
     ) -> anyhow::Result<()> {
         let mut lines = Vec::new();
         lines.push(format!(
-            "Network was down for up to {} seconds.",
-            maximum_down_duration.as_secs()
+            "Network was down for up to {} seconds = {:.1} minutes.",
+            maximum_down_duration.as_secs(),
+            maximum_down_duration.as_secs_f32() / 60.0,
         ));
         if old.v4 != new.v4 {
             if let Some(ip) = &old.v4 {
