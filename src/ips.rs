@@ -17,13 +17,15 @@ impl IPs {
             .await
             .map(|body| body.trim().to_string());
 
-        if v4.is_err() && v6.is_err() {
-            Err(anyhow::anyhow!("{:?} {:?}", v4, v6))
-        } else {
-            Ok(Self {
-                v4: v4.ok(),
-                v6: v6.ok(),
-            })
+        if let Err(v4) = &v4 {
+            if let Err(v6) = &v6 {
+                return Err(anyhow::anyhow!("IPv4 Err: {}\nIPv6 Err: {}", v4, v6));
+            }
         }
+
+        Ok(Self {
+            v4: v4.ok(),
+            v6: v6.ok(),
+        })
     }
 }
