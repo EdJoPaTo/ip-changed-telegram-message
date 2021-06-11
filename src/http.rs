@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use reqwest::{Client, ClientBuilder};
+use tokio::time::sleep;
 
 const USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -44,6 +45,7 @@ impl Http {
                 return body;
             }
             i += 1;
+            sleep(Duration::from_millis(800)).await;
         }
     }
 }
