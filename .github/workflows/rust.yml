@@ -29,12 +29,12 @@ jobs:
           # - os: ubuntu-latest
           #   toolchain: 1.41.1 # Debian 10 Buster
           #   clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
-          - os: ubuntu-latest
-            toolchain: 1.47.0 # Alpine 3.13
-            clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
-          - os: ubuntu-latest
-            toolchain: 1.48.0 # Debian 11 Bullseye
-            clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
+          # - os: ubuntu-latest
+          #   toolchain: 1.47.0 # Alpine 3.13
+          #   clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
+          # - os: ubuntu-latest
+          #   toolchain: 1.48.0 # Debian 11 Bullseye
+          #   clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
     steps:
       - uses: actions/checkout@v2
 
