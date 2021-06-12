@@ -18,8 +18,19 @@ lto = true
 anyhow = "1"
 log = "0.4"
 pretty_env_logger = "0.4"
-reqwest = "0.11"
-teloxide = "0.4"
+
+[dependencies.reqwest]
+version = "0.11"
+default-features = false
+features = ["rustls"]
+
+[dependencies.teloxide]
+#version = "0.4"
+# Wait for next release which includes PR 354. See https://github.com/teloxide/teloxide/issues/364
+git = "https://github.com/teloxide/teloxide"
+branch = "dev"
+default-features = false
+features = ["rustls"]
 
 [dependencies.tokio]
 version = "1"
