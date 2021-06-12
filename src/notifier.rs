@@ -68,13 +68,13 @@ impl Notifier {
             lines.push(html::bold("IPv4"));
             let mut line = String::new();
             if let Some(ip) = &old.v4 {
-                line += &html::code_inline(&ip);
+                line += &html::code_inline(ip);
             } else {
                 line += "None";
             }
             line += " \u{2192} "; // →
             if let Some(ip) = &new.v4 {
-                line += &html::code_inline(&ip);
+                line += &html::code_inline(ip);
             } else {
                 line += "None";
             }
@@ -85,15 +85,15 @@ impl Notifier {
             println!("IPv6 new: {:?}", new.v6);
             lines.push(html::bold("IPv6"));
             if let Some(ip) = &old.v6 {
-                lines.push(html::code_inline(&ip));
+                lines.push(html::code_inline(ip));
             } else {
-                lines.push("None".to_string())
+                lines.push("None".to_string());
             }
             lines.push("\u{2193}".to_string()); // ↓
             if let Some(ip) = &new.v6 {
-                lines.push(html::code_inline(&ip));
+                lines.push(html::code_inline(ip));
             } else {
-                lines.push("None".to_string())
+                lines.push("None".to_string());
             }
         }
 
