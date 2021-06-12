@@ -1,6 +1,6 @@
 [package]
 name = "ip-changed-telegram-message"
-description = "Send a telegram message when the public ip changes"
+description = "Send a Telegram message when the public IP address changes"
 version = "0.4.0"
 license = "MIT"
 repository = "https://github.com/EdJoPaTo/ip-changed-telegram-message"
