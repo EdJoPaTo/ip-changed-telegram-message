@@ -41,11 +41,11 @@ impl Http {
         let mut i: usize = 1;
         loop {
             let body = self.get_once(url).await;
-            if i >= 2 || body.is_ok() {
+            if i >= 3 || body.is_ok() {
                 return body;
             }
             i += 1;
-            sleep(Duration::from_millis(800)).await;
+            sleep(Duration::from_millis(1500)).await;
         }
     }
 }
