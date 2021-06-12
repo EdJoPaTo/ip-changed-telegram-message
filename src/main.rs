@@ -43,11 +43,11 @@ async fn main() {
                         .await
                     {
                         eprintln!("notify change failed {}", err);
+                    } else {
+                        current = now;
+                        error_since = None;
                     }
-                    current = now;
                 }
-
-                error_since = None;
             }
             Err(err) => {
                 eprintln!("Temporary offline {}", err);
