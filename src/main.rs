@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use http::Http;
 use ips::IPs;
@@ -27,20 +27,21 @@ async fn main() {
         .await
         .expect("notify startup failed");
 
-    let mut failed_attempts = 0;
+    let mut error_since: Option<Instant> = None;
 
     loop {
         sleep(SLEEP_TIME).await;
+        let begin_check = Instant::now();
 
         match IPs::get(&http).await {
             Ok(now) => {
                 let ip_changed = now != current;
-                let network_was_down = failed_attempts > 0;
-                let network_down_duration = SLEEP_TIME * (failed_attempts + 1);
+                let network_down_duration = error_since.map(|o| o.elapsed());
+                let network_was_down = network_down_duration.is_some();
 
                 if ip_changed || network_was_down {
                     if let Err(err) = notifier
-                        .notify_change(&current, &now, &network_down_duration)
+                        .notify_change(&current, &now, network_down_duration)
                         .await
                     {
                         eprintln!("notify change failed {}", err);
@@ -48,11 +49,11 @@ async fn main() {
                     current = now;
                 }
 
-                failed_attempts = 0;
+                error_since = None;
             }
             Err(err) => {
                 eprintln!("Temporary offline {}", err);
-                failed_attempts += 1;
+                error_since = Some(begin_check);
             }
         }
     }
