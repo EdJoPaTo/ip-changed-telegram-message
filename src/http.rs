@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use reqwest::{Client, ClientBuilder};
+use reqwest::ClientBuilder;
 use tokio::time::sleep;
 
 const USER_AGENT: &str = concat!(
@@ -11,41 +11,27 @@ const USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY"),
 );
 
-#[derive(Clone)]
-pub struct Http {
-    client: Client,
+async fn get_once(url: &str) -> reqwest::Result<String> {
+    ClientBuilder::new()
+        .timeout(Duration::from_secs(2))
+        .user_agent(USER_AGENT)
+        .build()?
+        .get(url)
+        .send()
+        .await?
+        .error_for_status()?
+        .text()
+        .await
 }
 
-impl Http {
-    pub fn new() -> Self {
-        Self {
-            client: ClientBuilder::new()
-                .timeout(Duration::from_secs(2))
-                .user_agent(USER_AGENT)
-                .build()
-                .expect("failed to create reqwest client"),
+pub async fn get(url: &str) -> reqwest::Result<String> {
+    let mut i: usize = 1;
+    loop {
+        let body = get_once(url).await;
+        if i >= 3 || body.is_ok() {
+            return body;
         }
-    }
-
-    async fn get_once(&self, url: &str) -> reqwest::Result<String> {
-        self.client
-            .get(url)
-            .send()
-            .await?
-            .error_for_status()?
-            .text()
-            .await
-    }
-
-    pub async fn get(&self, url: &str) -> reqwest::Result<String> {
-        let mut i: usize = 1;
-        loop {
-            let body = self.get_once(url).await;
-            if i >= 3 || body.is_ok() {
-                return body;
-            }
-            i += 1;
-            sleep(Duration::from_millis(1500)).await;
-        }
+        i += 1;
+        sleep(Duration::from_millis(1500)).await;
     }
 }

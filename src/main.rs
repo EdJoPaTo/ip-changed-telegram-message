@@ -1,6 +1,5 @@
 use std::time::{Duration, Instant};
 
-use http::Http;
 use ips::IPs;
 use tokio::time::sleep;
 
@@ -19,8 +18,7 @@ async fn main() {
         .expect("TARGET_CHAT is not a valid 64-bit integer");
     let notifier = notifier::Notifier::new(&bot_token, target_chat);
 
-    let http = Http::new();
-    let mut current = IPs::get(&http).await.expect("failed to get current IPs");
+    let mut current = IPs::get().await.expect("failed to get current IPs");
 
     notifier
         .notify_startup(&current)
@@ -33,7 +31,7 @@ async fn main() {
         sleep(SLEEP_TIME).await;
         let begin_check = Instant::now();
 
-        match IPs::get(&http).await {
+        match IPs::get().await {
             Ok(now) => {
                 let ip_changed = now != current;
                 let network_down_duration = error_since.map(|o| o.elapsed());

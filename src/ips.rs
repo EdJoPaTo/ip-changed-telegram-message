@@ -1,4 +1,4 @@
-use crate::http::Http;
+use crate::http;
 
 #[derive(PartialEq)]
 pub struct IPs {
@@ -7,13 +7,11 @@ pub struct IPs {
 }
 
 impl IPs {
-    pub async fn get(http: &Http) -> anyhow::Result<Self> {
-        let v4 = http
-            .get("https://ipv4.edjopato.de")
+    pub async fn get() -> anyhow::Result<Self> {
+        let v4 = http::get("https://ipv4.edjopato.de")
             .await
             .map(|body| body.trim().to_string());
-        let v6 = http
-            .get("https://ipv6.edjopato.de")
+        let v6 = http::get("https://ipv6.edjopato.de")
             .await
             .map(|body| body.trim().to_string());
 
