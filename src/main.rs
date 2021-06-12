@@ -50,7 +50,7 @@ async fn main() {
                 }
             }
             Err(err) => {
-                eprintln!("Temporary offline {}", err);
+                eprintln!("Temporary offline\n{}", err);
                 error_since = Some(begin_check);
             }
         }
