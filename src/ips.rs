@@ -1,19 +1,18 @@
+use std::net::{Ipv4Addr, Ipv6Addr};
+use std::str::FromStr;
+
 use crate::http;
 
 #[derive(PartialEq)]
 pub struct IPs {
-    pub v4: Option<String>,
-    pub v6: Option<String>,
+    pub v4: Option<Ipv4Addr>,
+    pub v6: Option<Ipv6Addr>,
 }
 
 impl IPs {
     pub async fn get() -> anyhow::Result<Self> {
-        let v4 = http::get("https://ipv4.edjopato.de")
-            .await
-            .map(|body| body.trim().to_string());
-        let v6 = http::get("https://ipv6.edjopato.de")
-            .await
-            .map(|body| body.trim().to_string());
+        let v4 = get_addr("https://ipv4.edjopato.de").await;
+        let v6 = get_addr("https://ipv6.edjopato.de").await;
 
         if let Err(v4) = &v4 {
             if let Err(v6) = &v6 {
@@ -26,4 +25,13 @@ impl IPs {
             v6: v6.ok(),
         })
     }
+}
+
+async fn get_addr<A: FromStr>(ip_url: &str) -> anyhow::Result<A> {
+    let body = http::get(ip_url).await?;
+    let addr = body
+        .trim()
+        .parse()
+        .map_err(|_| anyhow::anyhow!("parsing ip address failed: {}", body))?;
+    Ok(addr)
 }
