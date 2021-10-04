@@ -25,12 +25,9 @@ default-features = false
 features = ["rustls"]
 
 [dependencies.teloxide]
-#version = "0.4"
-# Wait for next release which includes PR 354. See https://github.com/teloxide/teloxide/issues/364
-git = "https://github.com/teloxide/teloxide"
-branch = "dev"
+version = "0.5"
 default-features = false
-features = ["rustls"]
+features = ["rustls", "ctrlc_handler"]
 
 [dependencies.tokio]
 version = "1"
