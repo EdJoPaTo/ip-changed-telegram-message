@@ -6,41 +6,32 @@ on:
 
 jobs:
   test:
-    name: Test ${{ matrix.os }} ${{ matrix.toolchain }}
+    name: Test ${{ matrix.toolchain }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     strategy:
       fail-fast: false
       matrix:
+        toolchain:
+          - stable
+        os:
+          - ubuntu-20.04
+          - macos-11
+          - windows-2022
+        clippyargs:
+          - -D clippy::pedantic -D warnings
+        features:
+          - --all-features
         include:
-          # Check stable on the main platforms and ensure there is not even a single warning
-          - os: ubuntu-latest
-            toolchain: stable
-            clippyargs: -D clippy::pedantic -D warnings
-          - os: macOS-latest
-            toolchain: stable
-            clippyargs: -D clippy::pedantic -D warnings
-          - os: windows-latest
-            toolchain: stable
-            clippyargs: -D clippy::pedantic -D warnings
-
           # Check future versions and maybe get some glances on soon to be lints
-          - os: ubuntu-latest
-            toolchain: beta
+          - toolchain: beta
+            os: ubuntu-20.04
+            features: --all-features
+            clippyargs: -W clippy::pedantic -W clippy::nursery
+          - toolchain: nightly
+            os: ubuntu-20.04
+            features: --all-features
             clippyargs: -W clippy::pedantic
-          - os: ubuntu-latest
-            toolchain: nightly
-            clippyargs: -W clippy::pedantic
-
-          # Check if it is still running on older Rust versions.
-          # Sometimes they dont have lint bugfixes which results in false positives -> Dont error, just warn.
-          # Also some specified lints are not yet existing in the older rust version -> allow unknown lints.
-          # - os: ubuntu-latest
-          #   toolchain: 1.48.0 # Debian 11 Bullseye
-          #   clippyargs: -A unknown-lints -A clippy::unknown-clippy-lints
-          - os: ubuntu-latest
-            toolchain: 1.52.0 # Alpine 3.14
-            clippyargs: -A unknown-lints
     steps:
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -52,17 +43,29 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Run clippy
+      - name: Fetch dependencies
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+          args: --verbose --locked
+
+      - name: Check clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --verbose --locked --all-targets --all-features -- ${{ matrix.clippyargs }}
+          args: --verbose --locked --all-targets ${{ matrix.features }} -- ${{ matrix.clippyargs }}
+
+      - name: Check docs
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --verbose --locked --no-deps ${{ matrix.features }}
 
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --verbose --locked --all-features
+          args: --verbose --locked ${{ matrix.features }}
 
   github-release:
     name: Release ${{ matrix.triple }}
@@ -72,25 +75,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            triple: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            triple: arm-unknown-linux-gnueabihf
-          - os: ubuntu-latest
-            triple: armv7-unknown-linux-gnueabihf
-          - os: ubuntu-latest
-            triple: aarch64-unknown-linux-gnu
+          - triple: x86_64-unknown-linux-gnu
+            os: ubuntu-20.04
+          - triple: arm-unknown-linux-gnueabihf
+            os: ubuntu-20.04
+          - triple: armv7-unknown-linux-gnueabihf
+            os: ubuntu-20.04
+          - triple: aarch64-unknown-linux-gnu
+            os: ubuntu-20.04
 
-          - os: macOS-latest
-            triple: x86_64-apple-darwin
-          - os: macOS-latest
-            triple: aarch64-apple-darwin
+          - triple: x86_64-apple-darwin
+            os: macos-11
+          - triple: aarch64-apple-darwin
+            os: macos-11
 
-          - os: windows-latest
-            triple: x86_64-pc-windows-msvc
+          - triple: x86_64-pc-windows-msvc
+            os: windows-2022
           # https://github.com/briansmith/ring/issues/1167
-          # - os: windows-latest
-          #   triple: aarch64-pc-windows-msvc
+          # - triple: aarch64-pc-windows-msvc
+          #   os: windows-2022
     steps:
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -104,42 +107,45 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set Artifact Name
+      - name: Set artifact name
         shell: bash
         run: |
-          version=$(git describe --tags --match "v*.*.*" --always)
-          echo "version is: $version"
+          version="$(git describe --tags --match "v*.*.*" --always)"
+          echo "version: $version"
           echo "GIT_TAG_VERSION=$version" >> $GITHUB_ENV
 
           name="ip-changed-telegram-message-$version-${{ matrix.triple }}"
-          echo "artifact name is: $name"
+          echo "artifact: $name"
           echo "ARTIFACT_NAME=$name" >> $GITHUB_ENV
+
+      - name: Fetch dependencies
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+          args: --verbose --locked
 
       - name: Build
         uses: actions-rs/cargo@v1
-        env:
-          # TODO: Remove this once it's the default
-          SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
         with:
           command: build
           args: --release --verbose --locked --all-features --target ${{ matrix.triple }}
           use-cross: ${{ runner.os == 'Linux' && matrix.triple != 'x86_64-unknown-linux-gnu' }}
 
-      - name: Package (-nix)
+      - name: Package (*nix)
         if: runner.os != 'Windows'
         run: >
-          tar --gzip -cvf ${{ env.ARTIFACT_NAME }}.tar.gz
+          tar -cv
           LICENSE README.md
-          -C target/${{ matrix.triple }}/release ip-changed-telegram-message
-      - name: Package (windows)
+          -C target/${{ matrix.triple }}/release/ ip-changed-telegram-message
+          | gzip --best > ${{ env.ARTIFACT_NAME }}.tar.gz
+      - name: Package (Windows)
         if: runner.os == 'Windows'
-        run: |
-          7z a ${{ env.ARTIFACT_NAME }}.zip LICENSE README.md
-          cd target/${{ matrix.triple }}/release
-          7z a ../../../${{ env.ARTIFACT_NAME }}.zip ip-changed-telegram-message.exe
-          cd -
+        run: >
+          7z a ${{ env.ARTIFACT_NAME }}.zip
+          LICENSE README.md
+          ./target/${{ matrix.triple }}/release/ip-changed-telegram-message.exe
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.triple }}
@@ -147,7 +153,7 @@ jobs:
             *.zip
             *.tar.gz
 
-      - name: GitHub Release
+      - name: Create GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
