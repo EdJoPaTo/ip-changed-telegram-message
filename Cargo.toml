@@ -5,8 +5,7 @@ version = "0.5.2"
 license = "MIT"
 repository = "https://github.com/EdJoPaTo/ip-changed-telegram-message"
 authors = ["EdJoPaTo <ip-changed-telegram-message-rust@edjopato.de>"]
-edition = "2018"
-
+edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
