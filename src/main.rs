@@ -34,10 +34,9 @@ async fn main() {
         match IPs::get().await {
             Ok(now) => {
                 let ip_changed = now != current;
-                let network_down_duration = error_since.map(|o| o.elapsed());
-                let network_was_down = network_down_duration.is_some();
-
+                let network_was_down = error_since.is_some();
                 if ip_changed || network_was_down {
+                    let network_down_duration = error_since.map(|o| o.elapsed());
                     if let Err(err) = notifier
                         .notify_change(&current, &now, network_down_duration)
                         .await
