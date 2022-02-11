@@ -50,8 +50,12 @@ async fn main() {
                 }
             }
             Err(err) => {
-                eprintln!("Temporary offline\n{}", err);
-                error_since = Some(begin_check);
+                if error_since.is_none() {
+                    eprintln!("Temporary offline\n{}", err);
+                    error_since = Some(begin_check);
+                } else {
+                    eprintln!("Still offline\n{}", err);
+                }
             }
         }
     }
