@@ -17,7 +17,7 @@ pub struct Notifier {
 
 impl Notifier {
     pub fn new(bot_token: &str, target_chat: i64) -> Self {
-        teloxide::enable_logging!();
+        pretty_env_logger::init();
         let bot = Bot::new(bot_token);
         Self { bot, target_chat }
     }
