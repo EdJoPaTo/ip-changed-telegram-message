@@ -31,3 +31,24 @@ features = ["rustls", "ctrlc_handler"]
 [dependencies.tokio]
 version = "1"
 features = ["rt-multi-thread", "macros"]
+
+# https://crates.io/crates/cargo-deb
+[package.metadata.deb]
+depends = ""
+maintainer-scripts = "systemd/system/"
+systemd-units = {}
+assets = [
+    ["target/release/ip-changed-telegram-message", "/usr/bin/ip-changed-telegram-message", "755"],
+    ["LICENSE", "/usr/share/licenses/ip-changed-telegram-message/LICENSE", "644"],
+    ["README.md", "/usr/share/doc/ip-changed-telegram-message/README.md", "644"],
+]
+
+# https://crates.io/crates/cargo-generate-rpm
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/ip-changed-telegram-message", dest = "/usr/bin/ip-changed-telegram-message", mode = "755" },
+    { source = "LICENSE", dest = "/usr/share/licenses/ip-changed-telegram-message/LICENSE", mode = "644", doc = true },
+    { source = "README.md", dest = "/usr/share/doc/ip-changed-telegram-message/README.md", mode = "644", doc = true },
+
+    { source = "systemd/system/service", dest = "/usr/lib/systemd/system/ip-changed-telegram-message.service", mode = "644" },
+]

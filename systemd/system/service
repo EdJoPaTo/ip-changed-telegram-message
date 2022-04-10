@@ -11,7 +11,7 @@ Restart=always
 RestartSec=20
 Environment="BOT_TOKEN="
 Environment="TARGET_CHAT="
-ExecStart=/usr/local/bin/ip-changed-telegram-message
+ExecStart=/usr/bin/ip-changed-telegram-message
 
 [Install]
 WantedBy=multi-user.target
