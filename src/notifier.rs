@@ -3,7 +3,7 @@ use std::time::Duration;
 use teloxide::{
     payloads::SendMessageSetters,
     prelude::{Request, Requester},
-    types::ParseMode,
+    types::{ChatId, ParseMode},
     utils::html,
     Bot,
 };
@@ -12,13 +12,17 @@ use crate::ips::IPs;
 
 pub struct Notifier {
     bot: Bot,
-    target_chat: i64,
+    target_chat: ChatId,
 }
 
 impl Notifier {
-    pub fn new(bot_token: &str, target_chat: i64) -> Self {
+    pub fn new<C>(bot_token: &str, target_chat: C) -> Self
+    where
+        C: Into<ChatId>,
+    {
         pretty_env_logger::init();
         let bot = Bot::new(bot_token);
+        let target_chat = target_chat.into();
         Self { bot, target_chat }
     }
 

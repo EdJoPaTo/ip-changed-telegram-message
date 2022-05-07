@@ -1,6 +1,7 @@
 use std::time::{Duration, Instant};
 
 use ips::IPs;
+use teloxide::types::ChatId;
 use tokio::time::sleep;
 
 mod http;
@@ -16,6 +17,7 @@ async fn main() {
         .expect("TARGET_CHAT is not set")
         .parse::<i64>()
         .expect("TARGET_CHAT is not a valid 64-bit integer");
+    let target_chat = ChatId(target_chat);
     let notifier = notifier::Notifier::new(&bot_token, target_chat);
 
     let mut current = IPs::get().await.expect("failed to get current IPs");
