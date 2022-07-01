@@ -11,8 +11,10 @@ pub struct IPs {
 
 impl IPs {
     pub async fn get() -> anyhow::Result<Self> {
-        let v4 = get_addr("https://ipv4.edjopato.de").await;
-        let v6 = get_addr("https://ipv6.edjopato.de").await;
+        let v4 = get_addr("https://ipv4.edjopato.de");
+        let v6 = get_addr("https://ipv6.edjopato.de");
+
+        let (v4, v6) = futures::join!(v4, v6);
 
         if let Err(v4) = &v4 {
             if let Err(v6) = &v6 {

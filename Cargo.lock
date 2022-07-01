@@ -456,6 +456,7 @@ name = "ip-changed-telegram-message"
 version = "0.5.3"
 dependencies = [
  "anyhow",
+ "futures",
  "log",
  "pretty_env_logger",
  "reqwest",
