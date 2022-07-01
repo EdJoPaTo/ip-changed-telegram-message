@@ -30,7 +30,7 @@ features = ["rustls", "ctrlc_handler"]
 
 [dependencies.tokio]
 version = "1"
-features = ["rt-multi-thread", "macros"]
+features = ["macros"]
 
 # https://crates.io/crates/cargo-deb
 [package.metadata.deb]

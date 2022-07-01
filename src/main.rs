@@ -10,7 +10,7 @@ mod notifier;
 
 const SLEEP_TIME: Duration = Duration::from_secs(20);
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     let bot_token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set");
     let target_chat = std::env::var("TARGET_CHAT")
