@@ -1,6 +1,7 @@
 use std::time::Duration;
 
-use reqwest::ClientBuilder;
+use once_cell::sync::Lazy;
+use reqwest::{Client, ClientBuilder};
 use tokio::time::sleep;
 
 const USER_AGENT: &str = concat!(
@@ -11,11 +12,16 @@ const USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY"),
 );
 
-async fn get_once(url: &str) -> reqwest::Result<String> {
+static CLIENT: Lazy<Client> = Lazy::new(|| {
     ClientBuilder::new()
         .timeout(Duration::from_secs(2))
         .user_agent(USER_AGENT)
-        .build()?
+        .build()
+        .unwrap()
+});
+
+async fn get_once(url: &str) -> reqwest::Result<String> {
+    CLIENT
         .get(url)
         .send()
         .await?

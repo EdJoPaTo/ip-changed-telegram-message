@@ -458,6 +458,7 @@ dependencies = [
  "anyhow",
  "futures",
  "log",
+ "once_cell",
  "pretty_env_logger",
  "reqwest",
  "teloxide",
