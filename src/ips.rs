@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::http;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub struct IPs {
     pub v4: Option<Ipv4Addr>,
     pub v6: Option<Ipv6Addr>,
