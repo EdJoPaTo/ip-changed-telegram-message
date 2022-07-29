@@ -20,42 +20,78 @@ async fn main() {
     let target_chat = ChatId(target_chat);
     let notifier = notifier::Notifier::new(&bot_token, target_chat);
 
-    let mut current = IPs::get().await.expect("failed to get current IPs");
+    let (mut last_known_v4, mut last_known_v6) = {
+        let IPs { v4, v6 } = IPs::get().await;
+        assert!(
+            v4.is_ok() || v6.is_ok(),
+            "both IPv4 and IPv6 seem to be down currently"
+        );
+        (v4.ok(), v6.ok())
+    };
+
+    let mut ipv4_error_since: Option<Instant> = None;
+    let mut ipv6_error_since: Option<Instant> = None;
 
     notifier
-        .notify_startup(&current)
+        .notify_startup(last_known_v4, last_known_v6)
         .await
         .expect("notify startup failed");
-
-    let mut error_since: Option<Instant> = None;
 
     loop {
         sleep(SLEEP_TIME).await;
         let begin_check = Instant::now();
 
-        match IPs::get().await {
-            Ok(now) => {
-                let ip_changed = now != current;
-                let network_was_down = error_since.is_some();
-                if ip_changed || network_was_down {
-                    let network_down_duration = error_since.map(|o| o.elapsed());
+        let IPs { v4, v6 } = IPs::get().await;
+        match v4 {
+            Ok(v4) => {
+                if Some(v4) != last_known_v4 || ipv4_error_since.is_some() {
+                    let down_duration = ipv4_error_since.map_or(SLEEP_TIME, |o| o.elapsed());
                     if let Err(err) = notifier
-                        .notify_change(&current, &now, network_down_duration)
+                        .notify_change_v4(last_known_v4, v4, down_duration)
                         .await
                     {
-                        eprintln!("notify change failed {}", err);
+                        eprintln!("notify IPv4 change failed {}", err);
                     } else {
-                        current = now;
-                        error_since = None;
+                        last_known_v4 = Some(v4);
+                        ipv4_error_since = None;
                     }
                 }
             }
             Err(err) => {
-                if error_since.is_none() {
-                    eprintln!("Temporary offline\n{}", err);
-                    error_since = Some(begin_check);
-                } else {
-                    eprintln!("Still offline\n{}", err);
+                if last_known_v4.is_some() {
+                    if ipv4_error_since.is_none() {
+                        eprintln!("IPv4 temporary offline\n{}", err);
+                        ipv4_error_since = Some(begin_check);
+                    } else {
+                        eprintln!("IPv4 still offline\n{}", err);
+                    }
+                }
+            }
+        }
+
+        match v6 {
+            Ok(v6) => {
+                if Some(v6) != last_known_v6 || ipv6_error_since.is_some() {
+                    let down_duration = ipv6_error_since.map_or(SLEEP_TIME, |o| o.elapsed());
+                    if let Err(err) = notifier
+                        .notify_change_v6(last_known_v6, v6, down_duration)
+                        .await
+                    {
+                        eprintln!("notify IPv6 change failed {}", err);
+                    } else {
+                        last_known_v6 = Some(v6);
+                        ipv6_error_since = None;
+                    }
+                }
+            }
+            Err(err) => {
+                if last_known_v6.is_some() {
+                    if ipv6_error_since.is_none() {
+                        eprintln!("IPv6 temporary offline\n{}", err);
+                        ipv6_error_since = Some(begin_check);
+                    } else {
+                        eprintln!("IPv6 still offline\n{}", err);
+                    }
                 }
             }
         }

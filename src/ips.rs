@@ -3,29 +3,19 @@ use std::str::FromStr;
 
 use crate::http;
 
-#[derive(PartialEq, Eq)]
 pub struct IPs {
-    pub v4: Option<Ipv4Addr>,
-    pub v6: Option<Ipv6Addr>,
+    pub v4: anyhow::Result<Ipv4Addr>,
+    pub v6: anyhow::Result<Ipv6Addr>,
 }
 
 impl IPs {
-    pub async fn get() -> anyhow::Result<Self> {
+    pub async fn get() -> Self {
         let v4 = get_addr("https://ipv4.edjopato.de");
         let v6 = get_addr("https://ipv6.edjopato.de");
 
         let (v4, v6) = futures::join!(v4, v6);
 
-        if let Err(v4) = &v4 {
-            if let Err(v6) = &v6 {
-                return Err(anyhow::anyhow!("IPv4 Err: {}\nIPv6 Err: {}", v4, v6));
-            }
-        }
-
-        Ok(Self {
-            v4: v4.ok(),
-            v6: v6.ok(),
-        })
+        Self { v4, v6 }
     }
 }
 
