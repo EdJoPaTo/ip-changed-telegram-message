@@ -60,11 +60,9 @@ async fn main() {
             Err(err) => {
                 if last_known_v4.is_some() {
                     if ipv4_error_since.is_none() {
-                        eprintln!("IPv4 temporary offline\n{}", err);
                         ipv4_error_since = Some(begin_check);
-                    } else {
-                        eprintln!("IPv4 still offline\n{}", err);
                     }
+                    eprintln!("IPv4 offline: {}", err);
                 }
             }
         }
@@ -87,11 +85,9 @@ async fn main() {
             Err(err) => {
                 if last_known_v6.is_some() {
                     if ipv6_error_since.is_none() {
-                        eprintln!("IPv6 temporary offline\n{}", err);
                         ipv6_error_since = Some(begin_check);
-                    } else {
-                        eprintln!("IPv6 still offline\n{}", err);
                     }
+                    eprintln!("IPv6 offline: {}", err);
                 }
             }
         }

@@ -60,7 +60,7 @@ impl Notifier {
         let mut lines = Vec::new();
 
         let downtime = format!(
-            "IPv4 was down for up to {} seconds = {:.1} minutes.",
+            "IPv4 was down for less than {} seconds = {:.1} minutes.",
             down_duration.as_secs(),
             down_duration.as_secs_f32() / 60.0,
         );
@@ -101,7 +101,7 @@ impl Notifier {
         let mut lines = Vec::new();
 
         let downtime = format!(
-            "IPv6 was down for up to {} seconds = {:.1} minutes.",
+            "IPv6 was down for less than {} seconds = {:.1} minutes.",
             down_duration.as_secs(),
             down_duration.as_secs_f32() / 60.0,
         );
