@@ -22,7 +22,7 @@ async fn main() {
         let IPs { v4, v6 } = IPs::get().await;
         assert!(
             v4.is_ok() || v6.is_ok(),
-            "both IPv4 and IPv6 seem to be down currently"
+            "both IPv4 and IPv6 seem to be down currently\n\n{v4:?}\n\n{v6:?}"
         );
         (v4.ok(), v6.ok())
     };
