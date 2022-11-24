@@ -23,8 +23,8 @@ impl Notifier {
         v4: Option<Ipv4Addr>,
         v6: Option<Ipv6Addr>,
     ) -> Result<(), frankenstein::Error> {
-        println!("IPv4: {:?}", v4);
-        println!("IPv6: {:?}", v6);
+        println!("IPv4: {v4:?}");
+        println!("IPv6: {v6:?}");
         let mut lines = Vec::new();
         if let Some(ip) = v4 {
             lines.push(format!("IPv4: {}", code_inline(&ip)));
@@ -33,7 +33,7 @@ impl Notifier {
             lines.push(format!("IPv6: {}", code_inline(&ip)));
         }
         let text = lines.join("\n");
-        let text = format!("Bot startup done. IPs at startup:\n{}", text);
+        let text = format!("Bot startup done. IPs at startup:\n{text}");
         self.bot
             .send_message(
                 &SendMessageParams::builder()
@@ -61,12 +61,12 @@ impl Notifier {
             down_duration.as_secs(),
             down_duration.as_secs_f32() / 60.0,
         );
-        println!("{}", downtime);
+        println!("{downtime}");
         lines.push(downtime);
 
         if old != Some(new) {
-            println!("IPv4 old: {:?}", old);
-            println!("IPv4 new:      {:?}", new);
+            println!("IPv4 old: {old:?}");
+            println!("IPv4 new:      {new:?}");
             lines.push("<b>IPv4</b>".to_string());
             let mut line = String::new();
             if let Some(ip) = &old {
@@ -106,12 +106,12 @@ impl Notifier {
             down_duration.as_secs(),
             down_duration.as_secs_f32() / 60.0,
         );
-        println!("{}", downtime);
+        println!("{downtime}");
         lines.push(downtime);
 
         if old != Some(new) {
-            println!("IPv6 old: {:?}", old);
-            println!("IPv6 new:      {:?}", new);
+            println!("IPv6 old: {old:?}");
+            println!("IPv6 new:      {new:?}");
             lines.push("<b>IPv6</b>".to_string());
             if let Some(ip) = &old {
                 lines.push(code_inline(&ip));

@@ -24,6 +24,6 @@ async fn get_addr<A: FromStr>(ip_url: &str) -> anyhow::Result<A> {
     let addr = body
         .trim()
         .parse()
-        .map_err(|_| anyhow::anyhow!("parsing ip address failed: {}", body))?;
+        .map_err(|_| anyhow::anyhow!("parsing ip address failed: {body}"))?;
     Ok(addr)
 }

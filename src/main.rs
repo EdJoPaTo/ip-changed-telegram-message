@@ -48,7 +48,7 @@ async fn main() {
                         .notify_change_v4(last_known_v4, v4, down_duration)
                         .await
                     {
-                        eprintln!("notify IPv4 change failed {}", err);
+                        eprintln!("notify IPv4 change failed {err}");
                     } else {
                         last_known_v4 = Some(v4);
                         ipv4_error_since = None;
@@ -60,7 +60,7 @@ async fn main() {
                     if ipv4_error_since.is_none() {
                         ipv4_error_since = Some(begin_check);
                     }
-                    eprintln!("IPv4 offline: {}", err);
+                    eprintln!("IPv4 offline: {err}");
                 }
             }
         }
@@ -73,7 +73,7 @@ async fn main() {
                         .notify_change_v6(last_known_v6, v6, down_duration)
                         .await
                     {
-                        eprintln!("notify IPv6 change failed {}", err);
+                        eprintln!("notify IPv6 change failed {err}");
                     } else {
                         last_known_v6 = Some(v6);
                         ipv6_error_since = None;
@@ -85,7 +85,7 @@ async fn main() {
                     if ipv6_error_since.is_none() {
                         ipv6_error_since = Some(begin_check);
                     }
-                    eprintln!("IPv6 offline: {}", err);
+                    eprintln!("IPv6 offline: {err}");
                 }
             }
         }
