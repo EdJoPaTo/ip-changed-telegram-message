@@ -9,8 +9,8 @@ Type=simple
 DynamicUser=true
 Restart=always
 RestartSec=20
-Environment=BOT_TOKEN=
-Environment=TARGET_CHAT=
+#Environment=BOT_TOKEN=
+#Environment=TARGET_CHAT=
 ExecStart=/usr/bin/ip-changed-telegram-message
 
 [Install]
