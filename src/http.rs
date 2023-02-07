@@ -14,7 +14,7 @@ const USER_AGENT: &str = concat!(
 
 static CLIENT: Lazy<Client> = Lazy::new(|| {
     ClientBuilder::new()
-        .timeout(Duration::from_secs(2))
+        .timeout(Duration::from_secs(5))
         .user_agent(USER_AGENT)
         .build()
         .unwrap()
