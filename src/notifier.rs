@@ -132,14 +132,14 @@ impl Notifier {
 fn format_downtime(down_duration: Duration) -> String {
     let secs = down_duration.as_secs();
     if secs <= 99 {
-        return format!("<{secs} seconds");
+        return format!("less than {secs} seconds");
     }
 
     let minutes = down_duration.as_secs_f32() / 60.0;
     if minutes <= 99.0 {
-        return format!("~{minutes:.1} minutes");
+        return format!("{minutes:.1} minutes");
     }
 
     let hours = minutes / 60.0;
-    format!("~{hours:.1} hours")
+    format!("{hours:.1} hours")
 }
