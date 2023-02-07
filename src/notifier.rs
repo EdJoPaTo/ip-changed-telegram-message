@@ -56,11 +56,7 @@ impl Notifier {
     ) -> Result<(), frankenstein::Error> {
         let mut lines = Vec::new();
 
-        let downtime = format!(
-            "IPv4 was down for less than {} seconds = {:.1} minutes.",
-            down_duration.as_secs(),
-            down_duration.as_secs_f32() / 60.0,
-        );
+        let downtime = format!("IPv4 was down for {}.", format_downtime(down_duration));
         println!("{downtime}");
         lines.push(downtime);
 
@@ -101,11 +97,7 @@ impl Notifier {
     ) -> Result<(), frankenstein::Error> {
         let mut lines = Vec::new();
 
-        let downtime = format!(
-            "IPv6 was down for less than {} seconds = {:.1} minutes.",
-            down_duration.as_secs(),
-            down_duration.as_secs_f32() / 60.0,
-        );
+        let downtime = format!("IPv6 was down for {}.", format_downtime(down_duration));
         println!("{downtime}");
         lines.push(downtime);
 
@@ -135,4 +127,19 @@ impl Notifier {
             .await?;
         Ok(())
     }
+}
+
+fn format_downtime(down_duration: Duration) -> String {
+    let secs = down_duration.as_secs();
+    if secs <= 99 {
+        return format!("<{secs} seconds");
+    }
+
+    let minutes = down_duration.as_secs_f32() / 60.0;
+    if minutes <= 99.0 {
+        return format!("~{minutes:.1} minutes");
+    }
+
+    let hours = minutes / 60.0;
+    format!("~{hours:.1} hours")
 }
