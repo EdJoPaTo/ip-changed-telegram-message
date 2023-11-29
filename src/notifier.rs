@@ -1,11 +1,8 @@
+use std::fmt::Write;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::time::Duration;
 
 use frankenstein::{AsyncApi, AsyncTelegramApi, ParseMode, SendMessageParams};
-
-fn code_inline<S: ToString>(s: &S) -> String {
-    format!("<code>{}</code>", s.to_string())
-}
 
 pub struct Notifier {
     bot: AsyncApi,
@@ -25,15 +22,13 @@ impl Notifier {
     ) -> Result<(), frankenstein::Error> {
         println!("IPv4: {v4:?}");
         println!("IPv6: {v6:?}");
-        let mut lines = Vec::new();
+        let mut text = "Bot startup done. IPs at startup:\n".to_owned();
         if let Some(ip) = v4 {
-            lines.push(format!("IPv4: {}", code_inline(&ip)));
+            _ = writeln!(&mut text, "IPv4: <code>{ip}</code>");
         }
         if let Some(ip) = v6 {
-            lines.push(format!("IPv6: {}", code_inline(&ip)));
+            _ = writeln!(&mut text, "IPv6: <code>{ip}</code>");
         }
-        let text = lines.join("\n");
-        let text = format!("Bot startup done. IPs at startup:\n{text}");
         self.bot
             .send_message(
                 &SendMessageParams::builder()
@@ -54,28 +49,24 @@ impl Notifier {
         new: Ipv4Addr,
         down_duration: Duration,
     ) -> Result<(), frankenstein::Error> {
-        let mut lines = Vec::new();
-
         let downtime = format!("IPv4 was down for {}.", format_downtime(down_duration));
         println!("{downtime}");
-        lines.push(downtime);
+
+        let mut text = downtime;
 
         if old != Some(new) {
             println!("IPv4 old: {old:?}");
             println!("IPv4 new:      {new:?}");
-            lines.push("<b>IPv4</b>".to_string());
-            let mut line = String::new();
+            text += "\n<b>IPv4</b>\n";
             if let Some(ip) = &old {
-                line += &code_inline(&ip);
+                _ = write!(&mut text, "<code>{ip}</code>");
             } else {
-                line += "None";
+                text += "None";
             }
-            line += " \u{2192} "; // →
-            line += &code_inline(&new);
-            lines.push(line);
+            text += " \u{2192} "; // →
+            _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        let text = lines.join("\n");
         self.bot
             .send_message(
                 &SendMessageParams::builder()
@@ -95,26 +86,24 @@ impl Notifier {
         new: Ipv6Addr,
         down_duration: Duration,
     ) -> Result<(), frankenstein::Error> {
-        let mut lines = Vec::new();
-
         let downtime = format!("IPv6 was down for {}.", format_downtime(down_duration));
         println!("{downtime}");
-        lines.push(downtime);
+
+        let mut text = downtime;
 
         if old != Some(new) {
             println!("IPv6 old: {old:?}");
             println!("IPv6 new:      {new:?}");
-            lines.push("<b>IPv6</b>".to_string());
+            text += "\n<b>IPv6</b>\n";
             if let Some(ip) = &old {
-                lines.push(code_inline(&ip));
+                _ = write!(&mut text, "<code>{ip}</code>");
             } else {
-                lines.push("None".to_string());
+                text += "None";
             }
-            lines.push("\u{2193}".to_string()); // ↓
-            lines.push(code_inline(&new));
+            text += "\n\u{2193}\n"; // ↓
+            _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        let text = lines.join("\n");
         self.bot
             .send_message(
                 &SendMessageParams::builder()
