@@ -379,7 +379,6 @@ dependencies = [
  "anyhow",
  "frankenstein",
  "futures",
- "once_cell",
  "reqwest",
  "tokio",
 ]
