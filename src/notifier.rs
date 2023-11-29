@@ -49,15 +49,14 @@ impl Notifier {
         new: Ipv4Addr,
         down_duration: Duration,
     ) -> Result<(), frankenstein::Error> {
-        let downtime = format!("IPv4 was down for {}.", format_downtime(down_duration));
-        println!("{downtime}");
+        let downtime = format!("IPv4 was down for {}.\n", format_downtime(down_duration));
+        print!("{downtime}");
 
         let mut text = downtime;
 
         if old != Some(new) {
             println!("IPv4 old: {old:?}");
             println!("IPv4 new:      {new:?}");
-            text += "\n<b>IPv4</b>\n";
             if let Some(ip) = &old {
                 _ = write!(&mut text, "<code>{ip}</code>");
             } else {
@@ -86,15 +85,14 @@ impl Notifier {
         new: Ipv6Addr,
         down_duration: Duration,
     ) -> Result<(), frankenstein::Error> {
-        let downtime = format!("IPv6 was down for {}.", format_downtime(down_duration));
-        println!("{downtime}");
+        let downtime = format!("IPv6 was down for {}.\n", format_downtime(down_duration));
+        print!("{downtime}");
 
         let mut text = downtime;
 
         if old != Some(new) {
             println!("IPv6 old: {old:?}");
             println!("IPv6 new:      {new:?}");
-            text += "\n<b>IPv6</b>\n";
             if let Some(ip) = &old {
                 _ = write!(&mut text, "<code>{ip}</code>");
             } else {
