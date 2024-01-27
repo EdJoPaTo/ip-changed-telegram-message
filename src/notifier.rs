@@ -28,9 +28,19 @@ impl Notifier {
         v4: Option<Ipv4Addr>,
         v6: Option<Ipv6Addr>,
     ) -> Result<(), frankenstein::Error> {
+        const STARTUP_PREFIX: &str = concat!(
+            "<a href=\"",
+            env!("CARGO_PKG_REPOSITORY"),
+            "\">",
+            env!("CARGO_PKG_NAME"),
+            " v",
+            env!("CARGO_PKG_VERSION"),
+            "</a> startup done. IPs at startup:\n",
+        );
+
         println!("IPv4: {v4:?}");
         println!("IPv6: {v6:?}");
-        let mut text = "Bot startup done. IPs at startup:\n".to_owned();
+        let mut text = STARTUP_PREFIX.to_owned();
         if let Some(ip) = v4 {
             _ = writeln!(&mut text, "IPv4: <code>{ip}</code>");
         }
