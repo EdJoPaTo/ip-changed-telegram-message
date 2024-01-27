@@ -2,7 +2,15 @@ use std::fmt::Write;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::time::Duration;
 
-use frankenstein::{AsyncApi, AsyncTelegramApi, ParseMode, SendMessageParams};
+use frankenstein::{AsyncApi, AsyncTelegramApi, LinkPreviewOptions, ParseMode, SendMessageParams};
+
+const LINK_PREVIEW_OPTIONS: LinkPreviewOptions = LinkPreviewOptions {
+    is_disabled: Some(true),
+    url: None,
+    prefer_small_media: None,
+    prefer_large_media: None,
+    show_above_text: None,
+};
 
 pub struct Notifier {
     bot: AsyncApi,
@@ -32,11 +40,11 @@ impl Notifier {
         self.bot
             .send_message(
                 &SendMessageParams::builder()
+                    .disable_notification(true)
+                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
-                    .disable_notification(true)
-                    .disable_web_page_preview(true)
-                    .parse_mode(ParseMode::Html)
                     .build(),
             )
             .await?;
@@ -69,10 +77,10 @@ impl Notifier {
         self.bot
             .send_message(
                 &SendMessageParams::builder()
+                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
-                    .disable_web_page_preview(true)
-                    .parse_mode(ParseMode::Html)
                     .build(),
             )
             .await?;
@@ -105,10 +113,10 @@ impl Notifier {
         self.bot
             .send_message(
                 &SendMessageParams::builder()
+                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
-                    .disable_web_page_preview(true)
-                    .parse_mode(ParseMode::Html)
                     .build(),
             )
             .await?;
