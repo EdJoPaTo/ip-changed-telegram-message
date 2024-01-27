@@ -11,11 +11,11 @@ const SLEEP_TIME: Duration = Duration::from_secs(20);
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let bot_token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set");
+    let bot_token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN should be set");
     let target_chat = std::env::var("TARGET_CHAT")
-        .expect("TARGET_CHAT is not set")
+        .expect("TARGET_CHAT should be set")
         .parse::<i64>()
-        .expect("TARGET_CHAT is not a valid 64-bit integer");
+        .expect("TARGET_CHAT should be a valid 64-bit integer");
     let notifier = notifier::Notifier::new(&bot_token, target_chat);
 
     let (mut last_known_v4, mut last_known_v6) = {
@@ -33,7 +33,7 @@ async fn main() {
     notifier
         .notify_startup(last_known_v4, last_known_v6)
         .await
-        .expect("notify startup failed");
+        .expect("should be able to send initial notify on startup");
 
     loop {
         sleep(SLEEP_TIME).await;
