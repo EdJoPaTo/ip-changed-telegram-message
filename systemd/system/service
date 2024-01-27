@@ -5,7 +5,7 @@ After=network-online.target
 StartLimitIntervalSec=0
 
 [Service]
-Type=simple
+Type=exec
 DynamicUser=true
 Restart=always
 RestartSec=20
