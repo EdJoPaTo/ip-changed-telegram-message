@@ -12,7 +12,6 @@ edition = "2021"
 # See https://doc.rust-lang.org/cargo/reference/profiles.html
 codegen-units = 1
 lto = true
-strip = "debuginfo"
 
 [dependencies]
 anyhow = "1"
