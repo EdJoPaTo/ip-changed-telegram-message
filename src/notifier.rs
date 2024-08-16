@@ -13,14 +13,16 @@ const LINK_PREVIEW_OPTIONS: LinkPreviewOptions = LinkPreviewOptions {
 };
 
 pub struct Notifier {
-    bot: AsyncApi,
+    bot_token: String,
     target_chat: i64,
 }
 
 impl Notifier {
-    pub fn new(bot_token: &str, target_chat: i64) -> Self {
-        let bot = AsyncApi::new(bot_token);
-        Self { bot, target_chat }
+    pub const fn new(bot_token: String, target_chat: i64) -> Self {
+        Self {
+            bot_token,
+            target_chat,
+        }
     }
 
     pub async fn notify_startup(
@@ -47,7 +49,7 @@ impl Notifier {
         if let Some(ip) = v6 {
             _ = writeln!(&mut text, "IPv6: <code>{ip}</code>");
         }
-        self.bot
+        AsyncApi::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .disable_notification(true)
@@ -84,7 +86,7 @@ impl Notifier {
             _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        self.bot
+        AsyncApi::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .link_preview_options(LINK_PREVIEW_OPTIONS)
@@ -120,7 +122,7 @@ impl Notifier {
             _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        self.bot
+        AsyncApi::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .link_preview_options(LINK_PREVIEW_OPTIONS)

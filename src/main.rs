@@ -16,7 +16,7 @@ async fn main() {
         .expect("TARGET_CHAT should be set")
         .parse::<i64>()
         .expect("TARGET_CHAT should be a valid 64-bit integer");
-    let notifier = notifier::Notifier::new(&bot_token, target_chat);
+    let notifier = notifier::Notifier::new(bot_token, target_chat);
 
     let (mut last_known_v4, mut last_known_v6) = {
         let IPs { v4, v6 } = IPs::get().await;
