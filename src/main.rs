@@ -43,11 +43,8 @@ async fn main() {
         match v4 {
             Ok(v4) => {
                 if Some(v4) != last_known_v4 || ipv4_error_since.is_some() {
-                    let down_duration = ipv4_error_since.map_or(SLEEP_TIME, |o| o.elapsed());
-                    if let Err(err) = notifier
-                        .notify_change_v4(last_known_v4, v4, down_duration)
-                        .await
-                    {
+                    let duration = ipv4_error_since.map_or(SLEEP_TIME, |since| since.elapsed());
+                    if let Err(err) = notifier.notify_change_v4(last_known_v4, v4, duration).await {
                         eprintln!("Notify IPv4 change via Telegram failed: {err:#}");
                     } else {
                         last_known_v4 = Some(v4);
@@ -68,11 +65,8 @@ async fn main() {
         match v6 {
             Ok(v6) => {
                 if Some(v6) != last_known_v6 || ipv6_error_since.is_some() {
-                    let down_duration = ipv6_error_since.map_or(SLEEP_TIME, |o| o.elapsed());
-                    if let Err(err) = notifier
-                        .notify_change_v6(last_known_v6, v6, down_duration)
-                        .await
-                    {
+                    let duration = ipv6_error_since.map_or(SLEEP_TIME, |since| since.elapsed());
+                    if let Err(err) = notifier.notify_change_v6(last_known_v6, v6, duration).await {
                         eprintln!("Notify IPv6 change via Telegram failed: {err:#}");
                     } else {
                         last_known_v6 = Some(v6);
