@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1-bookworm as builder
+FROM docker.io/library/rust:1-bookworm AS builder
 WORKDIR /build
 RUN apt-get update \
 	&& apt-get upgrade -y \
@@ -10,16 +10,14 @@ COPY Cargo.toml Cargo.lock ./
 # cargo needs a dummy src/lib.rs to compile the dependencies
 RUN mkdir -p src \
 	&& touch src/lib.rs \
-	&& cargo fetch --locked \
-	&& cargo build --release --offline \
+	&& cargo build --release --locked \
 	&& rm -rf src
 
 COPY . ./
-RUN cargo build --release --frozen --offline
+RUN cargo build --release --locked --offline
 
 
-# Start building the final image
-FROM docker.io/library/debian:bookworm-slim
+FROM docker.io/library/debian:bookworm-slim AS final
 RUN apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get clean \
@@ -27,5 +25,5 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY --from=builder /build/target/release/ip-changed-telegram-message /usr/bin/
+COPY --from=builder /build/target/release/ip-changed-telegram-message /usr/local/bin/
 ENTRYPOINT ["ip-changed-telegram-message"]
