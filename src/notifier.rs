@@ -2,7 +2,8 @@ use std::fmt::Write;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::time::Duration;
 
-use frankenstein::{AsyncApi, AsyncTelegramApi, LinkPreviewOptions, ParseMode, SendMessageParams};
+use frankenstein::client_reqwest::Bot;
+use frankenstein::{AsyncTelegramApi as _, LinkPreviewOptions, ParseMode, SendMessageParams};
 
 const LINK_PREVIEW_OPTIONS: LinkPreviewOptions = LinkPreviewOptions {
     is_disabled: Some(true),
@@ -49,7 +50,7 @@ impl Notifier {
         if let Some(ip) = v6 {
             _ = writeln!(&mut text, "IPv6: <code>{ip}</code>");
         }
-        AsyncApi::new(&self.bot_token)
+        Bot::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .disable_notification(true)
@@ -86,7 +87,7 @@ impl Notifier {
             _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        AsyncApi::new(&self.bot_token)
+        Bot::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .link_preview_options(LINK_PREVIEW_OPTIONS)
@@ -122,7 +123,7 @@ impl Notifier {
             _ = write!(&mut text, "<code>{new}</code>");
         }
 
-        AsyncApi::new(&self.bot_token)
+        Bot::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
                     .link_preview_options(LINK_PREVIEW_OPTIONS)
