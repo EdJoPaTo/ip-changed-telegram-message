@@ -1,8 +1,9 @@
 use std::time::Duration;
 
+use reqwest::header::{HeaderValue, USER_AGENT};
 use tokio::time::sleep;
 
-const USER_AGENT: &str = concat!(
+const USER_AGENT_VALUE: &str = concat!(
     env!("CARGO_PKG_NAME"),
     "/",
     env!("CARGO_PKG_VERSION"),
@@ -14,7 +15,7 @@ async fn get_once(url: &str) -> reqwest::Result<String> {
     reqwest::Client::new()
         .get(url)
         .timeout(Duration::from_secs(5))
-        .header(reqwest::header::USER_AGENT, USER_AGENT)
+        .header(USER_AGENT, HeaderValue::from_static(USER_AGENT_VALUE))
         .send()
         .await?
         .error_for_status()?
