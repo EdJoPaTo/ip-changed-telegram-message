@@ -3,15 +3,9 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use std::time::Duration;
 
 use frankenstein::client_reqwest::Bot;
-use frankenstein::{AsyncTelegramApi as _, LinkPreviewOptions, ParseMode, SendMessageParams};
-
-const LINK_PREVIEW_OPTIONS: LinkPreviewOptions = LinkPreviewOptions {
-    is_disabled: Some(true),
-    url: None,
-    prefer_small_media: None,
-    prefer_large_media: None,
-    show_above_text: None,
-};
+use frankenstein::methods::SendMessageParams;
+use frankenstein::types::LinkPreviewOptions;
+use frankenstein::{AsyncTelegramApi as _, ParseMode};
 
 pub struct Notifier {
     bot_token: String,
@@ -54,7 +48,7 @@ impl Notifier {
             .send_message(
                 &SendMessageParams::builder()
                     .disable_notification(true)
-                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .link_preview_options(LinkPreviewOptions::DISABLED)
                     .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
@@ -90,7 +84,7 @@ impl Notifier {
         Bot::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
-                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .link_preview_options(LinkPreviewOptions::DISABLED)
                     .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
@@ -126,7 +120,7 @@ impl Notifier {
         Bot::new(&self.bot_token)
             .send_message(
                 &SendMessageParams::builder()
-                    .link_preview_options(LINK_PREVIEW_OPTIONS)
+                    .link_preview_options(LinkPreviewOptions::DISABLED)
                     .parse_mode(ParseMode::Html)
                     .chat_id(self.target_chat)
                     .text(text)
