@@ -19,7 +19,7 @@ impl IPs {
     }
 }
 
-#[allow(clippy::map_err_ignore)]
+#[expect(clippy::map_err_ignore)]
 async fn get_addr<A: FromStr>(ip_url: &str) -> anyhow::Result<A> {
     let body = http::get(ip_url).await?;
     let addr = body

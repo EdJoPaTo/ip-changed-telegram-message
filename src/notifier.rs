@@ -1,4 +1,4 @@
-use std::fmt::Write;
+use std::fmt::Write as _;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::time::Duration;
 
