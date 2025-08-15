@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1-bookworm AS builder
+FROM docker.io/library/rust:1-trixie AS builder
 WORKDIR /build
 RUN apt-get update \
 	&& apt-get upgrade -y \
@@ -17,7 +17,7 @@ COPY . ./
 RUN cargo build --release --locked --offline
 
 
-FROM docker.io/library/debian:bookworm-slim AS final
+FROM docker.io/library/debian:trixie-slim AS final
 RUN apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get clean \
