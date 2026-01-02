@@ -12,7 +12,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cargo fmt --check --verbose
 
   clippy:
@@ -32,7 +32,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           components: clippy
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: cargo fetch
       - run: cargo clippy --offline --all-targets
       - run: cargo doc --offline --no-deps
@@ -82,7 +82,7 @@ jobs:
         with:
           tool: cross,cargo-deb,cargo-generate-rpm
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -122,7 +122,7 @@ jobs:
         if: matrix.rpm
         run: cargo generate-rpm --auto-req disabled --target ${{ matrix.triple }} --output ${{ env.ARTIFACT_NAME }}.rpm
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.triple }}
           path: |
