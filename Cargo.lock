@@ -682,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "ip-changed-telegram-message"
-version = "1.0.3"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "frankenstein",
