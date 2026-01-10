@@ -4,6 +4,6 @@
 
 (Yes, I know, the IPv6 address is the one from the device, not from your network.)
 
-In order to find the public ip address out https://ipv4.edjopato.de and https://ipv6.edjopato.de are used.
+In order to find the public ip address out <https://ipv4.edjopato.de>, <https://ipv6.edjopato.de> and <https://ipwho.de> are used.
 
 Needs [BOT_TOKEN](https://telegram.me/BotFather) and [TARGET_CHAT (`chat_id`)](https://core.telegram.org/bots/api#sendmessage) environment variables set in order to work.
