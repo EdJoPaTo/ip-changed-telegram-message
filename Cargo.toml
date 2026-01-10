@@ -24,9 +24,9 @@ lto = true
 
 [dependencies]
 anyhow = "1"
-frankenstein = { version = "0.43", features = ["client-reqwest"] }
+frankenstein = { version = "0.45", features = ["client-reqwest"] }
 futures = "0.3"
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+reqwest = "0.13"
 tokio = { version = "1", features = ["macros"] }
 
 # https://crates.io/crates/cargo-deb
