@@ -24,7 +24,7 @@ lto = true
 
 [dependencies]
 anyhow = "1"
-frankenstein = { version = "0.45", features = ["client-reqwest"] }
+frankenstein = { version = "0.48", features = ["client-reqwest"] }
 futures = "0.3"
 reqwest = "0.13"
 tokio = { version = "1", features = ["macros"] }
