@@ -78,7 +78,7 @@ jobs:
 
       - name: Install cargo tools
         if: runner.os == 'Linux'
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@v2.85.4
         with:
           tool: cross,cargo-deb,cargo-generate-rpm
 
