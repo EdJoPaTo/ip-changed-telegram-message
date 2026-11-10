@@ -41,47 +41,76 @@ async fn main() {
 
         let IPs { v4, v6 } = IPs::get().await;
 
-        match v4 {
-            Ok((v4, works_since)) => {
-                if Some(v4) != last_known_v4 || ipv4_error_since.is_some() {
-                    let duration = down_duration(ipv4_error_since, works_since);
-                    if let Err(err) = notifier.notify_change_v4(last_known_v4, v4, duration).await {
-                        eprintln!("Notify IPv4 change via Telegram failed: {err:#}");
-                    } else {
-                        last_known_v4 = Some(v4);
-                        ipv4_error_since = None;
-                    }
-                }
+        if let Err(err) = &v4
+            && last_known_v4.is_some()
+        {
+            if ipv4_error_since.is_none() {
+                ipv4_error_since = Some(begin_check);
             }
-            Err(err) => {
-                if last_known_v4.is_some() {
-                    if ipv4_error_since.is_none() {
-                        ipv4_error_since = Some(begin_check);
-                    }
-                    eprintln!("IPv4 offline: {err:#}");
-                }
+            eprintln!("IPv4 offline: {err:#}");
+        }
+        if let Err(err) = &v6
+            && last_known_v6.is_some()
+        {
+            if ipv6_error_since.is_none() {
+                ipv6_error_since = Some(begin_check);
+            }
+            eprintln!("IPv6 offline: {err:#}");
+        }
+
+        if v4.is_err() && v6.is_err() {
+            continue; // nothing to notify
+        }
+
+        // IP changed or had an error before -> is back up again
+        let v4 = v4
+            .ok()
+            .filter(|(v4, _)| Some(*v4) != last_known_v4 || ipv4_error_since.is_some())
+            .map(|(v4, works_since)| (v4, down_duration(ipv4_error_since, works_since)));
+        let v6 = v6
+            .ok()
+            .filter(|(v6, _)| Some(*v6) != last_known_v6 || ipv6_error_since.is_some())
+            .map(|(v6, works_since)| (v6, down_duration(ipv6_error_since, works_since)));
+
+        // Notify both changes together when they had a similar downtime
+        if let (Some((v4, down_duration_v4)), Some((v6, down_duration_v6))) = (v4, v6)
+            && down_duration_v4.abs_diff(down_duration_v6).as_secs() < 5
+        {
+            if let Err(err) = notifier
+                .notify_change_both(last_known_v4, v4, last_known_v6, v6, down_duration_v4)
+                .await
+            {
+                eprintln!("Notify IPv4/v6 change via Telegram failed: {err:#}");
+            } else {
+                last_known_v4 = Some(v4);
+                ipv4_error_since = None;
+                last_known_v6 = Some(v6);
+                ipv6_error_since = None;
+            }
+            continue;
+        }
+
+        if let Some((v4, down_duration)) = v4 {
+            if let Err(err) = notifier
+                .notify_change_v4(last_known_v4, v4, down_duration)
+                .await
+            {
+                eprintln!("Notify IPv4 change via Telegram failed: {err:#}");
+            } else {
+                last_known_v4 = Some(v4);
+                ipv4_error_since = None;
             }
         }
 
-        match v6 {
-            Ok((v6, works_since)) => {
-                if Some(v6) != last_known_v6 || ipv6_error_since.is_some() {
-                    let duration = down_duration(ipv6_error_since, works_since);
-                    if let Err(err) = notifier.notify_change_v6(last_known_v6, v6, duration).await {
-                        eprintln!("Notify IPv6 change via Telegram failed: {err:#}");
-                    } else {
-                        last_known_v6 = Some(v6);
-                        ipv6_error_since = None;
-                    }
-                }
-            }
-            Err(err) => {
-                if last_known_v6.is_some() {
-                    if ipv6_error_since.is_none() {
-                        ipv6_error_since = Some(begin_check);
-                    }
-                    eprintln!("IPv6 offline: {err:#}");
-                }
+        if let Some((v6, down_duration)) = v6 {
+            if let Err(err) = notifier
+                .notify_change_v6(last_known_v6, v6, down_duration)
+                .await
+            {
+                eprintln!("Notify IPv6 change via Telegram failed: {err:#}");
+            } else {
+                last_known_v6 = Some(v6);
+                ipv6_error_since = None;
             }
         }
     }

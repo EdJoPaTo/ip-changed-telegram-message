@@ -72,18 +72,7 @@ impl Notifier {
         print!("{downtime}");
 
         let mut text = downtime;
-
-        if old != Some(new) {
-            println!("IPv4 old: {old:?}");
-            println!("IPv4 new:      {new:?}");
-            if let Some(ip) = &old {
-                _ = write!(text, "<code>{ip}</code>");
-            } else {
-                text += "None";
-            }
-            text += " \u{2192} "; // →
-            _ = write!(text, "<code>{new}</code>");
-        }
+        write_change_ipv4(&mut text, old, new);
 
         self.send_html(text, true).await
     }
@@ -98,18 +87,28 @@ impl Notifier {
         print!("{downtime}");
 
         let mut text = downtime;
+        write_change_ipv6(&mut text, old, new);
 
-        if old != Some(new) {
-            println!("IPv6 old: {old:?}");
-            println!("IPv6 new:      {new:?}");
-            if let Some(ip) = &old {
-                _ = write!(text, "<code>{ip}</code>");
-            } else {
-                text += "None";
-            }
-            text += "\n\u{2193}\n"; // ↓
-            _ = write!(text, "<code>{new}</code>");
-        }
+        self.send_html(text, true).await
+    }
+
+    pub async fn notify_change_both(
+        &self,
+        old_v4: Option<Ipv4Addr>,
+        new_v4: Ipv4Addr,
+        old_v6: Option<Ipv6Addr>,
+        new_v6: Ipv6Addr,
+        down_duration: Duration,
+    ) -> Result<(), frankenstein::Error> {
+        let downtime = format!(
+            "Network (IPv6 & IPv4) was down for {}.\n",
+            format_downtime(down_duration)
+        );
+        print!("{downtime}");
+
+        let mut text = downtime;
+        write_change_ipv4(&mut text, old_v4, new_v4);
+        write_change_ipv6(&mut text, old_v6, new_v6);
 
         self.send_html(text, true).await
     }
@@ -128,4 +127,32 @@ fn format_downtime(down_duration: Duration) -> String {
 
     let hours = minutes / 60.0;
     format!("{hours:.1} hours")
+}
+
+fn write_change_ipv4(text: &mut String, old: Option<Ipv4Addr>, new: Ipv4Addr) {
+    if old != Some(new) {
+        println!("IPv4 old: {old:?}");
+        println!("IPv4 new:      {new:?}");
+        if let Some(ip) = &old {
+            _ = write!(text, "<code>{ip}</code>");
+        } else {
+            *text += "None";
+        }
+        *text += " \u{2192} "; // →
+        _ = writeln!(text, "<code>{new}</code>");
+    }
+}
+
+fn write_change_ipv6(text: &mut String, old: Option<Ipv6Addr>, new: Ipv6Addr) {
+    if old != Some(new) {
+        println!("IPv6 old: {old:?}");
+        println!("IPv6 new:      {new:?}");
+        if let Some(ip) = &old {
+            _ = write!(text, "<code>{ip}</code>");
+        } else {
+            *text += "None";
+        }
+        *text += "\n\u{2193}\n"; // ↓
+        _ = writeln!(text, "<code>{new}</code>");
+    }
 }
