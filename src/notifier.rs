@@ -20,6 +20,21 @@ impl Notifier {
         }
     }
 
+    async fn send_html(&self, text: String, notification: bool) -> Result<(), frankenstein::Error> {
+        Bot::new(&self.bot_token)
+            .send_message(
+                &SendMessageParams::builder()
+                    .link_preview_options(LinkPreviewOptions::DISABLED)
+                    .parse_mode(ParseMode::Html)
+                    .chat_id(self.target_chat)
+                    .disable_notification(!notification)
+                    .text(text)
+                    .build(),
+            )
+            .await?;
+        Ok(())
+    }
+
     pub async fn notify_startup(
         &self,
         v4: Option<Ipv4Addr>,
@@ -39,23 +54,12 @@ impl Notifier {
         println!("IPv6: {v6:?}");
         let mut text = STARTUP_PREFIX.to_owned();
         if let Some(ip) = v4 {
-            _ = writeln!(&mut text, "IPv4: <code>{ip}</code>");
+            _ = writeln!(text, "IPv4: <code>{ip}</code>");
         }
         if let Some(ip) = v6 {
-            _ = writeln!(&mut text, "IPv6: <code>{ip}</code>");
+            _ = writeln!(text, "IPv6: <code>{ip}</code>");
         }
-        Bot::new(&self.bot_token)
-            .send_message(
-                &SendMessageParams::builder()
-                    .disable_notification(true)
-                    .link_preview_options(LinkPreviewOptions::DISABLED)
-                    .parse_mode(ParseMode::Html)
-                    .chat_id(self.target_chat)
-                    .text(text)
-                    .build(),
-            )
-            .await?;
-        Ok(())
+        self.send_html(text, false).await
     }
 
     pub async fn notify_change_v4(
@@ -73,25 +77,15 @@ impl Notifier {
             println!("IPv4 old: {old:?}");
             println!("IPv4 new:      {new:?}");
             if let Some(ip) = &old {
-                _ = write!(&mut text, "<code>{ip}</code>");
+                _ = write!(text, "<code>{ip}</code>");
             } else {
                 text += "None";
             }
             text += " \u{2192} "; // →
-            _ = write!(&mut text, "<code>{new}</code>");
+            _ = write!(text, "<code>{new}</code>");
         }
 
-        Bot::new(&self.bot_token)
-            .send_message(
-                &SendMessageParams::builder()
-                    .link_preview_options(LinkPreviewOptions::DISABLED)
-                    .parse_mode(ParseMode::Html)
-                    .chat_id(self.target_chat)
-                    .text(text)
-                    .build(),
-            )
-            .await?;
-        Ok(())
+        self.send_html(text, true).await
     }
 
     pub async fn notify_change_v6(
@@ -109,25 +103,15 @@ impl Notifier {
             println!("IPv6 old: {old:?}");
             println!("IPv6 new:      {new:?}");
             if let Some(ip) = &old {
-                _ = write!(&mut text, "<code>{ip}</code>");
+                _ = write!(text, "<code>{ip}</code>");
             } else {
                 text += "None";
             }
             text += "\n\u{2193}\n"; // ↓
-            _ = write!(&mut text, "<code>{new}</code>");
+            _ = write!(text, "<code>{new}</code>");
         }
 
-        Bot::new(&self.bot_token)
-            .send_message(
-                &SendMessageParams::builder()
-                    .link_preview_options(LinkPreviewOptions::DISABLED)
-                    .parse_mode(ParseMode::Html)
-                    .chat_id(self.target_chat)
-                    .text(text)
-                    .build(),
-            )
-            .await?;
-        Ok(())
+        self.send_html(text, true).await
     }
 }
 
