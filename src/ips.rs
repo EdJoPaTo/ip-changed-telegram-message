@@ -1,14 +1,14 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::str::FromStr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use tokio::time::sleep;
 
 use crate::http;
 
 pub struct IPs {
-    pub v4: anyhow::Result<Ipv4Addr>,
-    pub v6: anyhow::Result<Ipv6Addr>,
+    pub v4: anyhow::Result<(Ipv4Addr, Instant)>,
+    pub v6: anyhow::Result<(Ipv6Addr, Instant)>,
 }
 
 impl IPs {
@@ -22,17 +22,22 @@ impl IPs {
     }
 }
 
-async fn get_addr<A: FromStr>(ip_urls: &[&str]) -> anyhow::Result<A> {
-    let mut last = None;
+async fn get_addr<A: FromStr>(ip_urls: &[&str]) -> anyhow::Result<(A, Instant)> {
+    let mut last_err = None;
     for url in ip_urls.iter().cycle().take(3) {
-        let addr = single_attempt(url).await;
-        if addr.is_ok() {
-            return addr;
+        match single_attempt(url).await {
+            Ok(addr) => {
+                let done = Instant::now();
+                return Ok((addr, done));
+            }
+            Err(err) => {
+                last_err = Some(err);
+                sleep(Duration::from_millis(100)).await;
+            }
         }
-        last = Some(addr);
-        sleep(Duration::from_millis(100)).await;
     }
-    last.expect("ip_urls was empty")
+    let last_err = last_err.expect("ip_urls was empty");
+    Err(last_err)
 }
 
 #[expect(clippy::map_err_ignore)]

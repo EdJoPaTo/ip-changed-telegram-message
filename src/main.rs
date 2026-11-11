@@ -24,7 +24,7 @@ async fn main() {
             v4.is_ok() || v6.is_ok(),
             "both IPv4 and IPv6 seem to be down currently\n\n{v4:?}\n\n{v6:?}"
         );
-        (v4.ok(), v6.ok())
+        (v4.ok().map(|(ip, _)| ip), v6.ok().map(|(ip, _)| ip))
     };
 
     let mut ipv4_error_since: Option<Instant> = None;
@@ -40,10 +40,11 @@ async fn main() {
         let begin_check = Instant::now();
 
         let IPs { v4, v6 } = IPs::get().await;
+
         match v4 {
-            Ok(v4) => {
+            Ok((v4, works_since)) => {
                 if Some(v4) != last_known_v4 || ipv4_error_since.is_some() {
-                    let duration = ipv4_error_since.map_or(SLEEP_TIME, |since| since.elapsed());
+                    let duration = down_duration(ipv4_error_since, works_since);
                     if let Err(err) = notifier.notify_change_v4(last_known_v4, v4, duration).await {
                         eprintln!("Notify IPv4 change via Telegram failed: {err:#}");
                     } else {
@@ -63,9 +64,9 @@ async fn main() {
         }
 
         match v6 {
-            Ok(v6) => {
+            Ok((v6, works_since)) => {
                 if Some(v6) != last_known_v6 || ipv6_error_since.is_some() {
-                    let duration = ipv6_error_since.map_or(SLEEP_TIME, |since| since.elapsed());
+                    let duration = down_duration(ipv6_error_since, works_since);
                     if let Err(err) = notifier.notify_change_v6(last_known_v6, v6, duration).await {
                         eprintln!("Notify IPv6 change via Telegram failed: {err:#}");
                     } else {
@@ -84,4 +85,8 @@ async fn main() {
             }
         }
     }
+}
+
+fn down_duration(error_since: Option<Instant>, works_since: Instant) -> Duration {
+    error_since.map_or(SLEEP_TIME, |error_since| works_since - error_since)
 }
