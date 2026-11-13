@@ -24,7 +24,10 @@ impl IPs {
 
 async fn get_addr<A: FromStr>(ip_urls: &[&str]) -> anyhow::Result<A> {
     let mut last = None;
-    for url in ip_urls.iter().cycle().take(3) {
+    for (attempt, url) in ip_urls.iter().cycle().take(3).enumerate() {
+        if attempt > 0 {
+            eprintln!("attempt {attempt}: {url}");
+        }
         let addr = single_attempt(url).await;
         if addr.is_ok() {
             return addr;
