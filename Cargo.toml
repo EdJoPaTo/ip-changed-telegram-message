@@ -1,7 +1,7 @@
 [package]
 name = "ip-changed-telegram-message"
 description = "Send a Telegram message when the public IP address changes"
-version = "1.1.0"
+version = "1.2.0"
 license = "MIT"
 repository = "https://github.com/EdJoPaTo/ip-changed-telegram-message"
 authors = ["EdJoPaTo <ip-changed-telegram-message-rust@edjopato.de>"]
@@ -24,7 +24,7 @@ lto = true
 
 [dependencies]
 anyhow = "1"
-frankenstein = { version = "0.52", features = ["client-reqwest"] }
+frankenstein = { version = "0.53", features = ["client-reqwest"] }
 futures = "0.3"
 reqwest = "0.13"
 tokio = { version = "1", features = ["macros"] }
